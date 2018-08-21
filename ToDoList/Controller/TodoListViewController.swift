@@ -13,6 +13,13 @@ class TodoListViewController: UITableViewController {
     
     @IBOutlet weak var seachBar: UISearchBar!
     var itemArray = [Item]()
+    var selectedCategory : Category? {
+        didSet{
+            // taking in default parameter
+            // check function
+            loadItems()
+        }
+    }
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     // this is for user defaults
@@ -23,7 +30,6 @@ class TodoListViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadItems()
         // Creating search bar delegate
         seachBar.delegate = self
      }
@@ -75,6 +81,7 @@ class TodoListViewController: UITableViewController {
             let newItem = Item(context: self.context)
             newItem.title = textField.text!
             newItem.done = false
+            newItem.parentCategory = self.selectedCategory
             self.itemArray.append(newItem)
             self.saveItems()
         }
@@ -102,15 +109,26 @@ class TodoListViewController: UITableViewController {
     }
     
     //MARK: loading data from core data
-    // reading always requires a fetch request
-    func loadItems(){
-        // creating a fetch request
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
+    // reading always requires a fetch request method
+    // creating a default value when no arguments are provided when function called
+    // turning NS-Predicate to an optional so we can call it from else where
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil){
+        
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        // creating a compound predicate to join both the predicates together as one
+        // optional binding because NS-Predicate is optional in the parameters
+        // making sure its not null 
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        }else{
+            request.predicate = categoryPredicate
+        }
         do{
             itemArray = try context.fetch(request)
         }catch{
             print("error fetching data from context \(error)")
         }
+        tableView.reloadData()
     }
     
     //MARK: search bar delegate methods

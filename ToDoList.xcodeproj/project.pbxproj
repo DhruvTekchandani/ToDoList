@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DC9066BC212BE35B00A0B410 /* CategoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9066BB212BE35B00A0B410 /* CategoryTableViewController.swift */; };
 		DCA61417212BC64A00762806 /* SearchBarExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA61416212BC64A00762806 /* SearchBarExtension.swift */; };
 		DCAF3BD921290AB10047AE2A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAF3BD821290AB10047AE2A /* AppDelegate.swift */; };
 		DCAF3BDB21290AB10047AE2A /* TodoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCAF3BDA21290AB10047AE2A /* TodoListViewController.swift */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		DC9066BB212BE35B00A0B410 /* CategoryTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryTableViewController.swift; sourceTree = "<group>"; };
 		DCA61416212BC64A00762806 /* SearchBarExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarExtension.swift; sourceTree = "<group>"; };
 		DCAF3BD521290AB10047AE2A /* ToDoList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCAF3BD821290AB10047AE2A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 		DCAF3BF0212983370047AE2A /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				DC9066BB212BE35B00A0B410 /* CategoryTableViewController.swift */,
 				DCAF3BDA21290AB10047AE2A /* TodoListViewController.swift */,
 			);
 			path = Controller;
@@ -183,6 +186,7 @@
 			files = (
 				DCAF3BDB21290AB10047AE2A /* TodoListViewController.swift in Sources */,
 				DCAF3BE121290AB10047AE2A /* ToDoList.xcdatamodeld in Sources */,
+				DC9066BC212BE35B00A0B410 /* CategoryTableViewController.swift in Sources */,
 				DCAF3BD921290AB10047AE2A /* AppDelegate.swift in Sources */,
 				DCA61417212BC64A00762806 /* SearchBarExtension.swift in Sources */,
 			);
