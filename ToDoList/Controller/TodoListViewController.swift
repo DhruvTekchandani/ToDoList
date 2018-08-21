@@ -7,11 +7,13 @@
 //
 
 import UIKit
-
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
+    @IBOutlet weak var seachBar: UISearchBar!
     var itemArray = [Item]()
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     // this is for user defaults
     // to store small bits of information
@@ -22,12 +24,8 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadItems()
-        
-        // loading data from the user default plist
-//        if let items = defaults.array(forKey: "ToDoListArray") as? [Item] {
-//            itemArray = items
-//        }
-        
+        // Creating search bar delegate
+        seachBar.delegate = self
      }
     
     //MARK: - Tableview datasource methods
@@ -46,13 +44,6 @@ class TodoListViewController: UITableViewController {
         
         // value = condition ? valueIfTrue : valueIfFalse
         cell.accessoryType = item.done == true ? .checkmark : .none
-        
-//        if item.done == true{
-//            cell.accessoryType = .checkmark
-//        }else{
-//            cell.accessoryType = .none
-//        }
-        
         return cell
     }
     
@@ -60,7 +51,12 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
         // checking if a checkmark exists or not
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        //itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        // testing to remove an object from the database
+        context.delete(itemArray[indexPath.row])
+        itemArray.remove(at: indexPath.row)
+        // saving changes to coredata
         saveItems()
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -74,8 +70,11 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             // once the user clicks the add item button on the UI-Alert
             
-            let newItem = Item()
+            // adding the text and the done property to the app
+            // must add both because of non-optional types
+            let newItem = Item(context: self.context)
             newItem.title = textField.text!
+            newItem.done = false
             self.itemArray.append(newItem)
             self.saveItems()
         }
@@ -93,27 +92,33 @@ class TodoListViewController: UITableViewController {
     
     //MARK: model manupulation methods
     func saveItems(){
-        // encoding the custom class and adding the items
-        let encoder = PropertyListEncoder()
+        // saving items into core data
         do{
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
+            try context.save()
         }catch{
-            print("error is being printed \(error)")
+            print("app was not able to save the item: \(error)")
         }
         self.tableView.reloadData()
     }
     
+    //MARK: loading data from core data
+    // reading always requires a fetch request
     func loadItems(){
-        if let data = try? Data(contentsOf: dataFilePath!){
-            let decoder = PropertyListDecoder()
-            do{
-                itemArray = try decoder.decode([Item].self, from: data)
-            }catch{
-                print("error \(error)")
-            }
-            
+        // creating a fetch request
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        do{
+            itemArray = try context.fetch(request)
+        }catch{
+            print("error fetching data from context \(error)")
         }
     }
+    
+    //MARK: search bar delegate methods
+    // Check extension folder
+    // SearchBarExtension
+    
 }
+
+
+
 
