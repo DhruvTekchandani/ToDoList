@@ -16,16 +16,12 @@ extension TodoListViewController : UISearchBarDelegate {
  
     // when a search bar icon is clicked
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        // creating a fetch request
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
-        // to query we requie NS-predicate
-        // takes what the user types in the search bar is [cd] -> insensitive
-        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", seachBar.text!)
-        // sorting data a-z
-        // sort descriptiors expects an array
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        // fetching the request from core-data
-        loadItems(with: request, predicate: predicate)
+        // filtering the items from the to-do list
+        // by using the search bar
+        // that is based on the title
+        // filtering based on the predicate
+        todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
+        tableView.reloadData()
     }
     
     // checks when a user changes a any letter in the search bar

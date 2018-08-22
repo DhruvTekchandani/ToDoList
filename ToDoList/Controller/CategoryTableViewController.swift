@@ -7,15 +7,15 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryTableViewController: UITableViewController {
     
-    var categoryArray = [Category]()
-    // context needs to be created for CRUD
-    // using singleton app instance (shared)
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-
+    let realm = try! Realm()
+    // Result type is an auto-updating container therefore doesnt need to update array elements
+    // Result will automatically monitor for these changes
+    var categoryArray : Results<Category>?
+  
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
@@ -23,19 +23,20 @@ class CategoryTableViewController: UITableViewController {
 
     // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categoryArray.count
+        // Nil Coalescing Operator
+        // if categories = nil then return 1
+        return categoryArray?.count ?? 1
     }
 
     //MARK: - Table view delegate method
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        cell.textLabel?.text = categoryArray[indexPath.row].name
+        cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories Added Yet"
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "goToItems", sender: self)
-        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -43,32 +44,29 @@ class CategoryTableViewController: UITableViewController {
             let destinationVC = segue.destination as! TodoListViewController
             // selecting an individual row
             if let indexPath = tableView.indexPathForSelectedRow{
-                destinationVC.selectedCategory = categoryArray[indexPath.row]
+                destinationVC.selectedCategory = categoryArray?[indexPath.row]
             }
         }
     }
     
     //MARK: - Data manupulation methods
     // saving data to the database
-    func saveCategories(){
+    func save(category: Category){
         do{
-            try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         }catch{
             print("Error while saving new category \(error)")
         }
         tableView.reloadData()
     }
     
-    // loading data from database
+    // loading data from realm database
     func loadCategories(){
-        // to fetch a NSFetch request must be made of Category type
-        let request : NSFetchRequest<Category> = Category.fetchRequest()
-        do{
-            // saving the data fetched into the category array created on top
-            categoryArray = try context.fetch(request)
-        }catch{
-            print("error loading items from category \(error)")
-        }
+        // getting all of the categories type from realm
+        // returning the results
+        categoryArray = realm.objects(Category.self)
         tableView.reloadData()
     }
     
@@ -76,10 +74,9 @@ class CategoryTableViewController: UITableViewController {
         var textField = UITextField()
         let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
-            let newCategory = Category(context: self.context)
+            let newCategory = Category()
             newCategory.name = textField.text!
-            self.categoryArray.append(newCategory)
-            self.saveCategories()
+            self.save(category: newCategory)
         }
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Add New Category"
